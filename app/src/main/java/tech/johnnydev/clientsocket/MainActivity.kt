@@ -1,9 +1,8 @@
 package tech.johnnydev.clientsocket
 
-import android.os.AsyncTask
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.RadioButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -13,21 +12,15 @@ import androidx.core.view.WindowInsetsCompat
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.net.Socket
+import java.util.Timer
+import java.util.TimerTask
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var rnHora: RadioButton
-    private lateinit var rnData: RadioButton
-    private lateinit var btEnviar: Button
+    private lateinit var rbHora: RadioButton
+    private lateinit var rbData: RadioButton
     private lateinit var tvResultado: TextView
-    private lateinit var progressBar: ProgressBar
 
-    private val ip = "10.0.2.2" // EMULATOR
-    private val port = 12345
-
-    private lateinit var clientSocket: Socket
-    private lateinit var input: BufferedReader
-    private lateinit var output: BufferedWriter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,89 +32,22 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        rnHora = findViewById(R.id.rbHora)
-        rnData = findViewById(R.id.rbData)
-        btEnviar = findViewById(R.id.btEnviar)
+        rbHora = findViewById(R.id.rbHora)
+        rbData = findViewById(R.id.rbData)
+
         tvResultado = findViewById(R.id.tvResposta)
-        progressBar = findViewById(R.id.progress_bar)
 
-
-        btEnviar.setOnClickListener {
-            btEnviarOnClick()
-        }
-    }
-
-    private fun btEnviarOnClick() {
-        var message = ""
-
-        message = if (rnHora.isChecked) {
-            "hora"
-        } else {
-            "data"
-        }
-
-
-        ConexaoTask().execute(message)
 
     }
 
-    override fun onStop() {
-        super.onStop()
-        clientSocket.close()
-    }
-
-    inner class ConexaoTask : AsyncTask<String, Int, String>() {
-        override fun onPreExecute() {
-            progressBar.visibility = ProgressBar.VISIBLE
-        }
-
-        override fun doInBackground(vararg params: String?): String {
-            Thread.sleep(100)
-            publishProgress(1)
-            if (!::clientSocket.isInitialized) {
-                clientSocket = Socket(ip, port)
-                Thread.sleep(100)
-                publishProgress(2)
-                input = clientSocket.getInputStream().bufferedReader()
-                output = clientSocket.getOutputStream().bufferedWriter()
-                Thread.sleep(100)
-                publishProgress(3)
-            }
-
-            val message = params[0]
-            output.write(message)
-            output.newLine()
-            Thread.sleep(100)
-            publishProgress(4)
-            output.flush()
-            val response = input.readLine()
-
-            Thread.sleep(100)
-            publishProgress(5)
-            Thread.sleep(100)
-            publishProgress(6)
-            Thread.sleep(100)
-            publishProgress(7)
-            Thread.sleep(100)
-            publishProgress(8)
-            Thread.sleep(100)
-            publishProgress(9)
-            Thread.sleep(100)
-            publishProgress(10)
-
-
-            return response
-        }
-
-        override fun onPostExecute(result: String?) {
-
-            tvResultado.text = result
-            progressBar.visibility = ProgressBar.GONE
-        }
-
-        override fun onProgressUpdate(vararg values: Int?) {
-            progressBar.progress = values[0]!!.toInt()
+    override fun onStart() {
+        super.onStart()
+//        val serviceIntent = Intent(this, MyService::class.java)
+//        startService(serviceIntent)
+        IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED).also {
+            registerReceiver(MyReceiver(), it)
         }
     }
+
 
 }

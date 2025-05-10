@@ -71,15 +71,15 @@ fun processOrder(protocol: String): String {
     var result = ""
     when (protocol) {
         "data" -> {
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             val formattedDate = now.format(formatter)
-            result = "Current date: $formattedDate"
+            result = formattedDate
         }
 
         "hora" -> {
             val formatter = DateTimeFormatter.ofPattern("HH:mm:ss")
             val formattedDate = now.format(formatter)
-            result = "Current time: $formattedDate"
+            result = formattedDate
         }
 
     }
