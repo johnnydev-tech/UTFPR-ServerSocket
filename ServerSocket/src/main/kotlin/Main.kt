@@ -39,7 +39,9 @@ fun handleClient(clientSocket: Socket) {
 try {
     val input = clientSocket.getInputStream().bufferedReader()
     val output = clientSocket.getOutputStream().bufferedWriter()
+    println("===========================")
     println("Creating I/O streams")
+    println("===========================")
 
     while (true) {
 

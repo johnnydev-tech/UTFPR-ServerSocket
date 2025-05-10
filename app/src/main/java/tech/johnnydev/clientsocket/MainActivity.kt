@@ -1,5 +1,6 @@
 package tech.johnnydev.clientsocket
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ProgressBar
@@ -19,7 +20,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rnData: RadioButton
     private lateinit var btEnviar: Button
     private lateinit var tvResultado: TextView
-    private  lateinit var progressBar: ProgressBar
+    private lateinit var progressBar: ProgressBar
 
     private val ip = "10.0.2.2" // EMULATOR
     private val port = 12345
@@ -51,35 +52,76 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun btEnviarOnClick() {
-        progressBar.visibility = ProgressBar.VISIBLE
+        var message = ""
 
-        Thread {
-            if (!::clientSocket.isInitialized) {
-                clientSocket = Socket(ip, port)
-
-                input = clientSocket.getInputStream().bufferedReader()
-                output = clientSocket.getOutputStream().bufferedWriter()
-            }
-
-            when (rnHora.isChecked) {
-                true -> output.write("hora\n")
-                false -> output.write("data\n")
-            }
-
-            output.flush()
-            val response = input.readLine()
-            runOnUiThread {
-                Thread.sleep(2000)
-                tvResultado.text = response
-                progressBar.visibility = ProgressBar.GONE
-            }
+        message = if (rnHora.isChecked) {
+            "hora"
+        } else {
+            "data"
+        }
 
 
-        }.start()
+        ConexaoTask().execute(message)
+
     }
 
     override fun onStop() {
         super.onStop()
         clientSocket.close()
     }
+
+    inner class ConexaoTask : AsyncTask<String, Int, String>() {
+        override fun onPreExecute() {
+            progressBar.visibility = ProgressBar.VISIBLE
+        }
+
+        override fun doInBackground(vararg params: String?): String {
+            Thread.sleep(100)
+            publishProgress(1)
+            if (!::clientSocket.isInitialized) {
+                clientSocket = Socket(ip, port)
+                Thread.sleep(100)
+                publishProgress(2)
+                input = clientSocket.getInputStream().bufferedReader()
+                output = clientSocket.getOutputStream().bufferedWriter()
+                Thread.sleep(100)
+                publishProgress(3)
+            }
+
+            val message = params[0]
+            output.write(message)
+            output.newLine()
+            Thread.sleep(100)
+            publishProgress(4)
+            output.flush()
+            val response = input.readLine()
+
+            Thread.sleep(100)
+            publishProgress(5)
+            Thread.sleep(100)
+            publishProgress(6)
+            Thread.sleep(100)
+            publishProgress(7)
+            Thread.sleep(100)
+            publishProgress(8)
+            Thread.sleep(100)
+            publishProgress(9)
+            Thread.sleep(100)
+            publishProgress(10)
+
+
+            return response
+        }
+
+        override fun onPostExecute(result: String?) {
+
+            tvResultado.text = result
+            progressBar.visibility = ProgressBar.GONE
+        }
+
+        override fun onProgressUpdate(vararg values: Int?) {
+            progressBar.progress = values[0]!!.toInt()
+        }
+    }
+
 }
